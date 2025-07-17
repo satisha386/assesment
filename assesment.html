@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Filter UI</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .filters {
+            width: 250px;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .filters h2,
+        .products h2 {
+            margin-bottom: 10px;
+        }
+
+        .products {
+            flex-grow: 1;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type='number'],
+        select {
+            width: 100%;
+            padding: 6px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="filters">
+        <h2>Filters</h2>
+
+        <div>
+            <h4>Category</h4>
+            <label><input type="checkbox" class="category" value="Electronics" /> Electronics</label><br />
+            <label><input type="checkbox" class="category" value="Footwear" /> Footwear</label><br />
+            <label><input type="checkbox" class="category" value="Clothing" /> Clothing</label><br />
+            <label><input type="checkbox" class="category" value="Accessories" /> Accessories</label><br />
+        </div>
+
+        <div>
+            <h4>Price Range</h4>
+            <label>Min: <input type="number" id="minPrice" value="0" /></label><br />
+            <label>Max: <input type="number" id="maxPrice" value="1000" /></label>
+        </div>
+
+        <div>
+            <h4>Minimum Rating</h4>
+            <select id="minRating">
+                <option value="0">0 stars & up</option>
+                <option value="1">1 star & up</option>
+                <option value="2">2 stars & up</option>
+                <option value="3">3 stars & up</option>
+                <option value="4">4 stars & up</option>
+                <option value="5">5 stars</option>
+            </select>
+        </div>
+
+        <button id="applyBtn">Apply Filters</button>
+    </div>
+
+    <div class="products">
+        <h2>Products</h2>
+        <div id="productList" class="product-grid"></div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "iPhone 14", category: "Electronics", price: 799, rating: 4 },
+            { id: 2, name: "Nike Shoes", category: "Footwear", price: 120, rating: 5 },
+            { id: 3, name: "Sony Headphones", category: "Electronics", price: 199, rating: 4 },
+            { id: 4, name: "Leather Jacket", category: "Clothing", price: 250, rating: 3 },
+            { id: 5, name: "Adidas Sneakers", category: "Footwear", price: 150, rating: 4 },
+            { id: 6, name: "Sunglasses", category: "Accessories", price: 75, rating: 4 },
+            { id: 7, name: "Bluetooth Speaker", category: "Electronics", price: 99, rating: 3 },
+            { id: 8, name: "Running Shorts", category: "Clothing", price: 45, rating: 5 },
+            { id: 9, name: "Leather Belt", category: "Accessories", price: 60, rating: 4 },
+            { id: 10, name: "Smartwatch", category: "Electronics", price: 300, rating: 5 }
+        ];
+
+        const categoryInputs = document.querySelectorAll(".category");
+        const minPriceInput = document.getElementById("minPrice");
+        const maxPriceInput = document.getElementById("maxPrice");
+        const minRatingInput = document.getElementById("minRating");
+        const productList = document.getElementById("productList");
+        const applyBtn = document.getElementById("applyBtn");
+
+        function renderProducts(filtered) {
+            productList.innerHTML = "";
+            if (filtered.length === 0) {
+                productList.innerHTML = "<p>No products match the selected filters.</p>";
+                return;
+            }
+            filtered.forEach(product => {
+                const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
+                productList.innerHTML += `
+          <div class="product-card">
+            <h3>${product.name}</h3>
+            <p><strong>${product.category}</strong></p>
+            <p>$${product.price}</p>
+            <p style="color: gold;">${stars}</p>
+          </div>
+        `;
+            });
+        }
+
+        function applyFilters() {
+            const selectedCategories = Array.from(categoryInputs)
+                .filter(input => input.checked)
+                .map(input => input.value);
+            const minPrice = parseFloat(minPriceInput.value) || 0;
+            const maxPrice = parseFloat(maxPriceInput.value) || 1000;
+            const minRating = parseInt(minRatingInput.value);
+
+            const filtered = products.filter(product => {
+                const inCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+                const inPriceRange = product.price >= minPrice && product.price <= maxPrice;
+                const meetsRating = product.rating >= minRating;
+                return inCategory && inPriceRange && meetsRating;
+            });
+
+            renderProducts(filtered);
+        }
+
+        applyBtn.addEventListener("click", applyFilters);
+
+        // Initial render
+        renderProducts(products);
+    </script>
+</body>
+
+</html>
